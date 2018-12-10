@@ -12,9 +12,14 @@ class TodoListTableViewController: UITableViewController {
 
     var items = [ "Find Mike" , "Buy Eggos" , "Destroy Demgorgon" ]
     
+    let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if let itemsArray = defaults.array(forKey: "ToDoListArray") as? [String] {
+            items = itemsArray
+        }
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -34,6 +39,9 @@ class TodoListTableViewController: UITableViewController {
             
             guard let text = textField.text, !text.isEmpty else { return }
             self.items.append(text)
+            
+            //save updated items to defaults
+            self.defaults.set(self.items, forKey: "ToDoListArray")
             self.tableView.reloadData()
             
         }
