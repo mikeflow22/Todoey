@@ -10,7 +10,7 @@ import UIKit
 
 class TodoListTableViewController: UITableViewController {
 
-    let items = [ "Find Mike" , "Buy Eggos" , "Destroy Demgorgon" ]
+    var items = [ "Find Mike" , "Buy Eggos" , "Destroy Demgorgon" ]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +22,30 @@ class TodoListTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
+    @IBAction func addButtonPressed(_ sender: Any) {
+        
+        var textField = UITextField()
+        
+        let alert = UIAlertController(title: "Add new Todoey Item", message: nil, preferredStyle: .alert)
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            //what will happen once the user clicks the add item button
+            print("success")
+            print(textField.text)
+            
+            guard let text = textField.text, !text.isEmpty else { return }
+            self.items.append(text)
+            self.tableView.reloadData()
+            
+        }
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
