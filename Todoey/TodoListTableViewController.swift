@@ -10,16 +10,26 @@ import UIKit
 
 class TodoListTableViewController: UITableViewController {
 
-    var items = [ "Find Mike" , "Buy Eggos" , "Destroy Demgorgon" ]
+    var items = [ Item ]()
     
     let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let itemsArray = defaults.array(forKey: "ToDoListArray") as? [String] {
+        let newItem = Item(title: "Find Mike", isDone: false)
+        items.append(newItem)
+        let newItem1 = Item(title: "Find Heather", isDone: false)
+         items.append(newItem1)
+        let newItem2 = Item(title: "Find Paul", isDone: false)
+         items.append(newItem2)
+        let newItem3 = Item(title: "Find Samantha", isDone: false)
+         items.append(newItem3)
+
+        if let itemsArray = defaults.array(forKey: "ToDoListArray") as? [Item] {
             items = itemsArray
         }
+        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -38,7 +48,8 @@ class TodoListTableViewController: UITableViewController {
             print(textField.text)
             
             guard let text = textField.text, !text.isEmpty else { return }
-            self.items.append(text)
+            let newItem = Item(title: text)
+            self.items.append(newItem)
             
             //save updated items to defaults
             self.defaults.set(self.items, forKey: "ToDoListArray")
@@ -69,8 +80,18 @@ class TodoListTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = items[indexPath.row]
-
+        let dataModel = items[indexPath.row]
+        cell.textLabel?.text = dataModel.title
+        
+        
+//        if dataModel.isDone == true {
+//            cell.accessoryType = .checkmark
+//        } else {
+//            cell.accessoryType = .none
+//        }
+        //The above can be refactored into a ternary operator value = condition ? true : false
+        cell.accessoryType = dataModel.isDone ? .checkmark : .none
+        
         return cell
     }
     
@@ -112,14 +133,20 @@ class TodoListTableViewController: UITableViewController {
     //MARK: - Table view delegate methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 //        print(items[indexPath.row])
+        //toggle the checkmark or the isDone
+        items[indexPath.row].isDone = !items[indexPath.row].isDone
         
-        //we want to add a checkmark to the row that was selected and when it is selected twice to remove said checkmark
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+//        //we want to add a checkmark to the row that was selected and when it is selected twice to remove said checkmark
+//        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+//        } else {
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+//        }
         
+        //once pressed we have to reload the tableview in order to see the checkmark
+        tableView.reloadData()
+        
+        //this will make the cell's background color turn back to white
         tableView.deselectRow(at: indexPath, animated: true)
     }
     /*
