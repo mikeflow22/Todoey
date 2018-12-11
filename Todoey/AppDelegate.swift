@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -38,10 +39,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
-        print("applicationWillTerminate")
-        
+        self.saveContext()
     }
     
+    // MARK: - Core Data stack
+    
+    lazy var persistentContainer: NSPersistentContainer = { //this is where we are going to store all of our data
+       
+        let container = NSPersistentContainer(name: "DataModel") //has to be the same name as the core data model file that xcode generated
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+    
+    // MARK: - Core Data Saving support
+    
+    func saveContext () {
+        let context = persistentContainer.viewContext  //context is an area where you can change the data. It similar to github staging area
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
+    }
+
     
 }
 
