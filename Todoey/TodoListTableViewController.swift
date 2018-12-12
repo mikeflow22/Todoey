@@ -45,7 +45,7 @@ class TodoListTableViewController: UITableViewController , UISearchBarDelegate {
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //what will happen once the user clicks the add item button
             print("success")
-            print(textField.text)
+            print(textField.text!)
             
             guard let text = textField.text, !text.isEmpty else { return }
             
