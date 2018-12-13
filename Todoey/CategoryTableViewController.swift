@@ -7,18 +7,17 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryTableViewController: UITableViewController {
 
-    var categories = [ Category ]()
+    let realm = try! Realm() //initalized new access point to our database
+    var categories : Results<Category>? //collection of "Results"
     
-    //get the context singleton
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
+   
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadCategories()
+        loadCategories() //retrieve all pevious saved objects
     }
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
@@ -30,10 +29,9 @@ class CategoryTableViewController: UITableViewController {
             guard let text = myTextField.text, !text.isEmpty else { return }
             
             //Create Category Object
-            let newCategory = Category(context: self.context)
+            let newCategory = Category()
             newCategory.name = text
-            self.categories.append(newCategory)
-            self.saveCategories()
+            self.save(category: newCategory)
         }
         
         //add textfield
@@ -54,7 +52,7 @@ class CategoryTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return categories.count
+        return categories?.count ?? 1
     }
 
    
@@ -62,17 +60,19 @@ class CategoryTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
 
         // Configure the cell...
-        cell.textLabel?.text = categories[indexPath.row].name
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories added yet."
         return cell
     }
     
     
     //MARK: - C.R.U.D. Functions
     
-    func saveCategories(){
+    func save(category: Category){
         //Try to save it to the persistent storage
         do {
-            try context.save()
+            try realm.write { //commit changes to database
+               realm.add(category) // add changes to database
+            }
         } catch  {
             print("Error saving to persistent storage: \(error.localizedDescription)")
         }
@@ -80,15 +80,8 @@ class CategoryTableViewController: UITableViewController {
     }
     
     func loadCategories(){
-        //Read data from context
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
+       categories = realm.objects(Category.self)
         
-        do {
-            //put the fetched results in the array
-           categories = try context.fetch(request)
-        } catch  {
-            print("Error fetching categories: \(error.localizedDescription)")
-        }
         tableView.reloadData()
     }
     
@@ -105,7 +98,7 @@ class CategoryTableViewController: UITableViewController {
         
         //grab the cateogry model object information
         if let indexPath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = categories[indexPath.row]
+            destinationVC.selectedCategory = categories?[indexPath.row]
         }
     }
 }
